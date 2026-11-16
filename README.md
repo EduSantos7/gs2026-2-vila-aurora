@@ -1,5 +1,5 @@
 # Rede Vila Aurora – Resilient Community Infrastructure
-**FIAP · Global Solution 2026.2 · Cybersecurity · Turma 4ECR · Grupo [G__]**
+**FIAP · Global Solution 2026.2 · Cybersecurity · Turma 4ECR · Grupo [4ECR]**
 Eduardo Cicero dos Santos (RM 551415) · Leonardo Yukio Uliana Seno (RM 550648)
 
 Protótipo funcional (entregável **E2**) de uma infraestrutura segura e resiliente para os cinco espaços da
@@ -51,7 +51,7 @@ Consumo medido da Parte 1: cerca de 1 GB de RAM com as 5 bordas. O SIEM (Parte 2
 ## 3. Subir o ambiente
 
 ```bash
-git clone <URL-DO-REPOSITORIO> ~/vila-aurora && cd ~/vila-aurora
+git clone https://github.com/EduSantos7/gs2026-2-vila-aurora.git ~/vila-aurora && cd ~/vila-aurora
 make secrets        # PKI (CA raiz offline em ~/va-ca-raiz-offline), chaves, senhas
 make cloud          # nuvem: banco, broker central, ingestão, painel corrigido + WAF
 make edges          # 5 bordas com regras locais e dispositivos simulados
