@@ -1,0 +1,117 @@
+# ======================= NUVEM / SERVIÇOS DISTRIBUÍDOS =======================
+# Segmentos: dmz (WAF + painel), dados (interno, sem saída), wan (simula a internet
+# por onde as bordas chegam). Portas publicadas SOMENTE em 127.0.0.1.
+name: va-cloud
+
+x-logs: &logs
+  driver: json-file
+  options: { max-size: "10m", max-file: "3" }
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    env_file: ../secrets/db.env
+    environment: { TZ: UTC }
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../db/init:/docker-entrypoint-initdb.d:ro
+      - ../secrets/db/seed:/seed-secret:ro
+    command: ["postgres", "-c", "log_connections=on", "-c", "log_statement=mod",
+              "-c", "log_min_error_statement=error", "-c", "log_line_prefix=%m [%p] %u@%d "]
+    networks: [dados]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vilaaurora"]
+      interval: 5s
+      retries: 20
+    mem_limit: 512m
+    restart: unless-stopped
+    logging: *logs
+
+  mqtt-central:
+    image: eclipse-mosquitto:2.0.20
+    volumes:
+      - ../cloud/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ../cloud/mosquitto/acl:/mosquitto/config/acl:ro
+      - ../secrets/pki/cloud/broker:/pki:ro
+      - mqdata:/mosquitto/data
+      - mqlog:/mosquitto/log
+    networks: [dados, wan]
+    mem_limit: 128m
+    restart: unless-stopped
+    logging: *logs
+
+  ingest:
+    build: ../cloud/servicos
+    command: ["python", "ingest.py"]
+    env_file: ../secrets/cloud.env
+    volumes: ["../secrets/pki/cloud/ingest:/pki:ro", "applogs:/logs"]
+    networks: [dados]
+    depends_on: { postgres: { condition: service_healthy }, mqtt-central: { condition: service_started } }
+    mem_limit: 128m
+    restart: unless-stopped
+    logging: *logs
+
+  config-publisher:
+    build: ../cloud/servicos
+    command: ["python", "config_publisher.py"]
+    env_file: ../secrets/cloud.env
+    volumes:
+      - ../secrets/pki/cloud/config:/pki:ro
+      - ../secrets/keys/config-sign.key:/keys/config-sign.key:ro
+      - applogs:/logs
+    networks: [dados]
+    depends_on: { postgres: { condition: service_healthy }, mqtt-central: { condition: service_started } }
+    mem_limit: 128m
+    restart: unless-stopped
+    logging: *logs
+
+  painel:
+    build: ../cloud/painel
+    env_file: ../secrets/painel.env
+    environment: { TZ: America/Sao_Paulo }
+    volumes: ["applogs:/logs"]
+    networks: [dmz, dados]
+    depends_on: { postgres: { condition: service_healthy } }
+    mem_limit: 256m
+    restart: unless-stopped
+    logging: *logs
+
+  # Proxy reverso com WAF (ModSecurity + OWASP Core Rule Set) - defesa em profundidade
+  waf:
+    image: owasp/modsecurity-crs:nginx-alpine
+    environment:
+      BACKEND: http://painel:8000
+      PARANOIA: ${WAF_PARANOIA:-2}
+      BLOCKING_PARANOIA: ${WAF_PARANOIA:-2}
+      ANOMALY_INBOUND: "5"
+      SERVER_NAME: painel.lab
+      SSL_CERT: /etc/nginx/conf/server.crt
+      SSL_CERT_KEY: /etc/nginx/conf/server.key
+      MODSEC_AUDIT_LOG_FORMAT: JSON
+    volumes:
+      - ../secrets/pki/cloud/waf/server.crt:/etc/nginx/conf/server.crt:ro
+      - ../secrets/pki/cloud/waf/server.key:/etc/nginx/conf/server.key:ro
+    ports: ["127.0.0.1:8443:8443"]
+    networks: [dmz]
+    depends_on: [painel]
+    mem_limit: 256m
+    restart: unless-stopped
+    logging: *logs
+
+  # ===== LEGADO VULNERÁVEL (reprodução do INC-VA-0712) - só com --profile legado =====
+  painel-legado:
+    profiles: [legado]
+    build: ../cloud/painel-legado
+    env_file: ../secrets/legado.env
+    ports: ["127.0.0.1:8081:8000"]          # sem WAF, sem TLS, sem login - como era
+    networks: [dmz, dados]
+    depends_on: { postgres: { condition: service_healthy } }
+    mem_limit: 128m
+    logging: *logs
+
+networks:
+  dmz: {}
+  dados: { internal: true }
+  wan: { name: va_wan }
+
+volumes: { pgdata: {}, mqdata: {}, mqlog: {}, applogs: {} }

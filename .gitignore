@@ -1,0 +1,20 @@
+# ===== NUNCA versionar segredos =====
+secrets/
+*.key
+*.pem
+*.p12
+*.csr
+.env
+*.env
+!.env.example
+!infra/sites/*.env
+wg/*.key
+# ===== evidências forenses (só o inventário/hashes vão para o Git) =====
+docs/evidencias/*
+!docs/evidencias/README.md
+# ===== Python / editores =====
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+.idea/

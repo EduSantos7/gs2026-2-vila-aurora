@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Painel{% endblock %} – Rede Vila Aurora</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+  <header>
+    <p class="marca">Rede Vila Aurora · Painel de Supervisão</p>
+    {% if session.login %}
+    <nav aria-label="Menu principal">
+      <ul>
+        <li><a href="{{ url_for('inicio') }}">Situação agora</a></li>
+        {% if session.papel in ['tecnico','coordenacao','auditor'] %}
+        <li><a href="{{ url_for('historico') }}">Histórico de acessos</a></li>
+        {% endif %}
+      </ul>
+      <form method="post" action="{{ url_for('sair') }}" class="sair">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <span>{{ session.login }} ({{ session.papel }})</span>
+        <button type="submit">Sair</button>
+      </form>
+    </nav>
+    {% endif %}
+  </header>
+  <main id="conteudo" tabindex="-1">
+    {% with msgs = get_flashed_messages() %}{% for m in msgs %}<p class="aviso" role="alert">{{ m }}</p>{% endfor %}{% endwith %}
+    {% block conteudo %}{% endblock %}
+  </main>
+</body>
+</html>

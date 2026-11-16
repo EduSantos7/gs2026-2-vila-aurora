@@ -1,0 +1,60 @@
+# ===== ACL da borda: cada identidade só acessa o mínimo necessário =====
+# Dispositivos (usuário = CN do certificado individual)
+pattern write va/+/%u/tele
+pattern read va/+/%u/cmd
+pattern read va/+/%u/sim
+
+# ---- espaço cc ----
+user edge-rules-cc
+topic read va/cc/+/tele
+topic write va/cc/+/cmd
+topic write va/cc/alarme
+topic read va/cc/config
+user sync-cc
+topic write va/cc/config
+user lab-injetor-cc
+topic write va/cc/+/sim
+
+# ---- espaço esc ----
+user edge-rules-esc
+topic read va/esc/+/tele
+topic write va/esc/+/cmd
+topic write va/esc/alarme
+topic read va/esc/config
+user sync-esc
+topic write va/esc/config
+user lab-injetor-esc
+topic write va/esc/+/sim
+
+# ---- espaço ubs ----
+user edge-rules-ubs
+topic read va/ubs/+/tele
+topic write va/ubs/+/cmd
+topic write va/ubs/alarme
+topic read va/ubs/config
+user sync-ubs
+topic write va/ubs/config
+user lab-injetor-ubs
+topic write va/ubs/+/sim
+
+# ---- espaço hrt ----
+user edge-rules-hrt
+topic read va/hrt/+/tele
+topic write va/hrt/+/cmd
+topic write va/hrt/alarme
+topic read va/hrt/config
+user sync-hrt
+topic write va/hrt/config
+user lab-injetor-hrt
+topic write va/hrt/+/sim
+
+# ---- espaço abr ----
+user edge-rules-abr
+topic read va/abr/+/tele
+topic write va/abr/+/cmd
+topic write va/abr/alarme
+topic read va/abr/config
+user sync-abr
+topic write va/abr/config
+user lab-injetor-abr
+topic write va/abr/+/sim

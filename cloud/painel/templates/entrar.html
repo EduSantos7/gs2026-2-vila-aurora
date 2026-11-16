@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block titulo %}Entrar{% endblock %}
+{% block conteudo %}
+<h1>Entrar no painel</h1>
+<p>Nenhum sistema da rede pede sua senha por e-mail, WhatsApp ou telefone.</p>
+<form method="post" class="cartao">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="login">Usuário</label>
+  <input id="login" name="login" autocomplete="username" required maxlength="32">
+  <label for="senha">Senha</label>
+  <input id="senha" name="senha" type="password" autocomplete="current-password" required>
+  <button type="submit">Entrar</button>
+</form>
+{% endblock %}

@@ -1,0 +1,86 @@
+{
+ "amostras_treino": 20160,
+ "amostras_teste": 10080,
+ "anomalas_teste": 730,
+ "precisao": 0.563,
+ "revocacao": 0.177,
+ "fpr": 0.0107,
+ "vp": 129,
+ "fp": 100,
+ "fn": 601,
+ "vn": 9250,
+ "cenarios": {
+  "A1 bomba noturna": {
+   "eventos": 2,
+   "detectados": 2,
+   "revocacao_pontos": 0.538,
+   "min_ate_detectar": [
+    14,
+    24
+   ]
+  },
+  "A2 deriva lenta de temperatura": {
+   "eventos": 1,
+   "detectados": 0,
+   "revocacao_pontos": 0.0,
+   "min_ate_detectar": []
+  },
+  "A3 sensor travado": {
+   "eventos": 1,
+   "detectados": 0,
+   "revocacao_pontos": 0.0,
+   "min_ate_detectar": []
+  },
+  "A4 leituras forjadas": {
+   "eventos": 10,
+   "detectados": 0,
+   "revocacao_pontos": 0.0,
+   "min_ate_detectar": []
+  }
+ },
+ "hibrido": {
+  "precisao": 0.766,
+  "revocacao": 0.493,
+  "fpr": 0.0118,
+  "cenarios": {
+   "A1 bomba noturna": {
+    "eventos": 2,
+    "detectados": 2,
+    "min_ate_detectar": [
+     0,
+     0
+    ]
+   },
+   "A2 deriva lenta de temperatura": {
+    "eventos": 1,
+    "detectados": 1,
+    "min_ate_detectar": [
+     256
+    ]
+   },
+   "A3 sensor travado": {
+    "eventos": 1,
+    "detectados": 1,
+    "min_ate_detectar": [
+     28
+    ]
+   },
+   "A4 leituras forjadas": {
+    "eventos": 10,
+    "detectados": 10,
+    "min_ate_detectar": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  }
+ }
+}

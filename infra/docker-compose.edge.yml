@@ -1,0 +1,75 @@
+# ======================= NÓ DE BORDA (um projeto por espaço) =======================
+# Uso: docker compose -p edge-ubs --env-file infra/sites/ubs.env -f infra/docker-compose.edge.yml up -d
+# Redes: iot (interna, sem saída: dispositivos só falam com o broker), ops (painel local),
+#        wan (link com a nuvem; desconectar = queda da fibra no teste de caos).
+x-logs: &logs
+  driver: json-file
+  options: { max-size: "5m", max-file: "3" }
+x-py: &py
+  build: ../edge
+  environment: &env
+    SITE: ${SITE}
+    RULES_MODE: ${RULES_MODE:-seguro}
+    TEMP_HOLD_S: ${TEMP_HOLD_S:-300}
+    SIM_SPEED: ${SIM_SPEED:-1}
+  restart: unless-stopped
+  logging: *logs
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0.20
+    volumes:
+      - ../edge/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ../edge/mosquitto/acl:/mosquitto/config/acl:ro
+      - ../secrets/pki/sites/${SITE}/broker:/pki:ro
+      - mqdata:/mosquitto/data
+      - mqlog:/mosquitto/log
+    networks: [iot]
+    mem_limit: 64m
+    restart: unless-stopped
+    logging: *logs
+
+  edge-rules:
+    <<: *py
+    command: ["python", "-m", "app.rules"]
+    volumes:
+      - ../secrets/pki/sites/${SITE}/edge-rules:/pki:ro
+      - ../secrets/keys/hmac.key:/keys/hmac.key:ro
+      - ../secrets/keys/config-sign.pub:/keys/config-sign.pub:ro
+      - buffer:/buffer
+      - logs:/logs
+    networks: [iot, ops]
+    ports: ["127.0.0.1:${LOCAL_PORT}:8080"]          # painel local (funciona sem internet)
+    depends_on: [mosquitto]
+    mem_limit: 96m
+
+  sync-agent:
+    <<: *py
+    command: ["python", "-m", "app.sync"]
+    volumes:
+      - ../secrets/pki/sites/${SITE}/sync:/pki:ro
+      - buffer:/buffer
+      - logs:/logs
+    networks: [iot, wan]
+    depends_on: [mosquitto]
+    mem_limit: 96m
+
+  simulador:
+    <<: *py
+    command: ["python", "-m", "app.sim"]
+    volumes:
+      - ../secrets/pki/sites/${SITE}/devices:/pki:ro
+      - ../infra/sites/devices.csv:/config/devices.csv:ro
+      - ../dados/crachas.csv:/config/crachas.csv:ro
+      - state:/state
+      - logs:/logs
+    networks: [iot]
+    depends_on: [mosquitto]
+    mem_limit: 96m
+
+networks:
+  iot: { internal: true }
+  ops: {}
+  wan: { external: true, name: va_wan }
+
+volumes: { mqdata: {}, mqlog: {}, buffer: {}, logs: {}, state: {} }

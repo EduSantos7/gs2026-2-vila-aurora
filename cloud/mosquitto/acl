@@ -1,0 +1,12 @@
+# ===== ACL do broker central =====
+# Cada borda (CN edge-<espaço>) só envia o próprio lote e só lê a própria confirmação/configuração
+pattern write sync/%u/batch
+pattern read sync/%u/ack
+pattern read config/%u
+
+user svc-ingest
+topic read sync/+/batch
+topic write sync/+/ack
+
+user svc-config
+topic write config/#

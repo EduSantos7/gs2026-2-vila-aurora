@@ -1,0 +1,41 @@
+# Configuração da CA INTERMEDIÁRIA (online) da Rede Vila Aurora - laboratório
+[ ca ]
+default_ca = CA_default
+
+[ CA_default ]
+dir              = $ENV::PKI_DIR/int
+database         = $dir/index.txt
+serial           = $dir/serial
+crlnumber        = $dir/crlnumber
+new_certs_dir    = $dir/newcerts
+certificate      = $dir/int.crt
+private_key      = $dir/int.key
+default_md       = sha256
+default_days     = 90          # certificados de curta duração (renovação automática)
+default_crl_days = 30
+policy           = policy_any
+unique_subject   = no
+copy_extensions  = none
+crl_extensions   = crl_ext
+
+[ policy_any ]
+organizationName = optional
+commonName       = supplied
+
+[ ext_client ]
+basicConstraints       = critical,CA:FALSE
+keyUsage               = critical,digitalSignature
+extendedKeyUsage       = clientAuth
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid
+
+[ ext_server ]
+basicConstraints       = critical,CA:FALSE
+keyUsage               = critical,digitalSignature
+extendedKeyUsage       = serverAuth
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid
+subjectAltName         = $ENV::SAN
+
+[ crl_ext ]
+authorityKeyIdentifier = keyid

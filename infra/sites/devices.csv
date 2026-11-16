@@ -1,0 +1,16 @@
+espaco,dispositivo,tipo
+cc,cc-energia-01,energia
+cc,cc-agua-01,nivel
+cc,cc-porta-01,porta
+esc,esc-nivel-01,nivel
+esc,esc-bomba-01,bomba
+esc,esc-porta-01,porta
+ubs,ubs-temp-01,temp_camara
+ubs,ubs-ar-01,ar
+ubs,ubs-porta-01,porta
+hrt,hrt-energia-01,energia
+hrt,hrt-solo-01,umidade_solo
+abr,abr-alaga-01,alagamento
+abr,abr-energia-01,energia
+abr,abr-porta-01,porta
+abr,abr-ar-01,ar
