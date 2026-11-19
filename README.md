@@ -149,5 +149,5 @@ docs/         evidências (fora do Git) e formulários de custódia
 - [ ] **Parte 3:** triagem com LLM local + testes de prompt injection, e-mail com SPF/DKIM/DMARC, Gophish, testes automatizados, teste de caos e métricas
 
 ## Uso de IA
-Desenvolvido com apoio de IA generativa (Claude, Anthropic) para geração e revisão de código e
+Desenvolvido com apoio de IA generativa (Claude, Anthropic) para revisão de código e
 documentação. Todo o conteúdo foi testado e é de responsabilidade da equipe.
